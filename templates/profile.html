@@ -1,0 +1,64 @@
+{% extends "master.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% with errors = get_flashed_messages(category_filter=['error']) %}
+    {% for message in errors %}
+    <div class="alert alert-danger" role="alert">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endwith %}
+    {% with successes = get_flashed_messages(category_filter=['success']) %}
+    {% for message in successes %}
+    <div class="alert alert-success" role="alert">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endwith %}
+
+    <div class="card text-center">
+        <div class="card-header">
+            Your profile
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">{{user['firstname']}} {{user['lastname']}}</h5>
+            <p class="card-text">{{user['email']}}</p>
+            <p class="card-text">Birthday: {{user['dob'].strftime("%B %d")}}</p>
+            <p class="card-text">Favorite languages: {{ user['languages'] }}</p>
+            <div class="row">
+                <div class="col col-lg-4">
+                    <a href="/success" class="btn btn-primary btn-lg btn-block">Home</a>
+                </div>
+                <div class="col col-lg-4">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary btn-lg btn-block dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Actions
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="/editprofile">Edit profile</a>
+                            <a class="dropdown-item" href="/changepasswd">Change password</a>
+                            <!-- confirmdelete is a modal in confirmdelete.html -->
+                            <a class="dropdown-item" data-toggle="modal" data-target="#confirmdelete">Delete profile</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col col-lg-4">
+                    <a href="/logout" class="btn btn-danger btn-block btn-lg">Logout</a>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-muted">
+            You registered with us on {{user['created_at'].strftime("%A, %B %d, %Y at %I:%M:%S %p")}}
+        </div>
+    </div>
+
+    {% include "confirmdelete.html" %}
+    
+</div>
+{% endblock %}
+
+

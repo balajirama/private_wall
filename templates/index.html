@@ -9,6 +9,9 @@
     {% for message in errors %}
     <div class="alert alert-danger" role="alert">
         {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
     {% endfor %}
     {% endwith %}
@@ -16,10 +19,84 @@
     {% for message in successes %}
     <div class="alert alert-success" role="alert">
         {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
     {% endfor %}
     {% endwith %}
+
+    <div class="row">
+        <div class="col col-xl-5 col-lg-5 col-md-5 col-sm-12 col-xs-12 mb-5">
+            <h1 class="display-4">Registration</h1>
+            <form action="/register" method="POST">
+                {% for item in REGISTRATION %}
+                <div class="form-group">
+                    <label>{{item['label']}}</label>
+                    {% with msgs = get_flashed_messages(category_filter=[item['name']]) %}
+                    {% for msg in msgs %}
+                    <div class="alert alert-danger" role="alert">
+                        {{msg}}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    {% endfor %}
+                    {% endwith %}
+                    <input type="{{item['type']}}" class="form-control" name="{{item['name']}}" placeholder="{{item['placeholder']}}" value="{{session['reg'][item['name']]}}">
+                    {% if item['small_text'] != None %}
+                    <small class='form-text text-muted'>{{item['small_text']}}</small>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <div class="form-group">
+                    <label>Select your favorite languages:</label>
+                    {% with msgs = get_flashed_messages(category_filter=["languages"]) %}
+                    {% for msg in msgs %}
+                    <div class="alert alert-danger" role="alert">
+                        {{msg}}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    {% endfor %}
+                    {% endwith %}
+                    <div class="row">
+                        {% for language in LANGUAGES %}
+                        {% set lang = language['name'] %}
+                        <div class="mx-4 form-check col col-xl-4 col-lg-4 col-md-8 col-sm-8 col-xs-8">
+                            <input class="form-check-input" type="checkbox" name="{{lang}}">
+                            <label class="form-check-label">{{lang}}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                <button type="reset" class="btn btn-secondary btn-lg">Reset</button>
+            </form>
+        </div>
+        <div class="col col-xl-1 col-lg-2 col-md-2 col-sm-12 col-xs-12"></div>
+        <div class="col col-xl-6 col-lg-5 col-md-5 col-sm-12 col-xs-12">
+            <h1 class="display-4">Login</h1>
+            <form action="/login" method="post">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-control" name="loginemail" aria-describedby="emailHelp" placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" class="form-control" name="loginpassword" placeholder="Password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg">Log in</button>
+            </form>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
 
-
+{% block morescripts %}
+<script>
+    $('.alert').alert();
+</script>
+{% endblock %}
