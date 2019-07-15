@@ -120,7 +120,10 @@ def success():
     if 'id' not in session:
         flash(not_logged_in, "error")
         return redirect("/")
-    return render_template("success.html")
+    mysql = connectToMySQL(dbname)
+    rec_msgs = mysql.query_db("SELECT users.firstname AS firstname, message_id, content, sent_at FROM messages JOIN users ON messages.sender_id = users.id WHERE messages.recipient_id = %(id)s ORDER BY sent_at DESC", {'id': session['id']})
+    other_users = mysql.query_db("SELECT * FROM users WHERE id != %(id)s", {'id': session['id']})
+    return render_template("success.html", rec_msgs=rec_msgs, other_users=other_users)
 
 @app.route("/logout")
 def logout():
@@ -231,10 +234,38 @@ def delmsg(id):
         flash(not_logged_in, 'error')
         return redirect("/")
     mysql = connectToMySQL(dbname)
-    messages = mysql.query_db("SELECT * FROM messages WHERE id = %(id)s AND recipient_id = %(recipient_id)s", {'id': id, 'recipient_id': session['id']})
+    data = {'message_id': id, 'recipient_id': session['id']}
+    messages = mysql.query_db("SELECT * FROM messages WHERE message_id = %(message_id)s AND recipient_id = %(recipient_id)s;", data)
     if bool(messages) == 0:
         flash("You can't delete that message", "error")
-        return redirect("/success")
+        if 'mischief' not in session:
+            session['mischief'] = 1
+            return render_template("mischief.html")
+        else:
+            return redirect("/logout")
+    elif not mysql.query_db("DELETE FROM messages WHERE message_id = %(message_id)s AND recipient_id = %(recipient_id)s;", data):
+        flash("Something went wrong in deleting the message", "error")
+    return redirect("/success")
+
+@app.route("/sendmsg", methods=['POST'])
+def sendmsg():
+    if 'id' not in session:
+        flash(not_logged_in, "error")
+        return redirect("/")
+    mysql = connectToMySQL(dbname)
+    data = dict()
+    for key in request.form.keys():
+        data[key] = request.form[key]
+    data['sender_id'] = session['id']
+    if not mysql.query_db("INSERT INTO messages (content, recipient_id, sender_id, sent_at) VALUES ( %(content)s, %(recipient_id)s, %(sender_id)s, NOW() );", data):
+        flash("Aw snap! Something is wrong at our end. Try in a few hours. Message was not sent", "error")
+    else:
+        users = mysql.query_db("SELECT firstname FROM users WHERE id = %(recipient_id)s", request.form)
+        if len(users) < 0:
+            flash("There was an error when you tried to send a message", "error")
+        else:
+            flash("Message sent to "+users[0]['firstname']+' successfully.', 'success')
+    return redirect("/success")
 
 if __name__ == "__main__":
     app.run(debug=True)

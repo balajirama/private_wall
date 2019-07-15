@@ -33,6 +33,7 @@ class SQLite3Connection:
                 self.connection.commit()
                 if query.lower().find("insert") >= 0:
                     return cursor.lastrowid
+                return True
         except Exception as e:
             print("ERROR:", e)
             return False

@@ -50,30 +50,31 @@
     <div class="row">
         <div class="col col-lg-6 col-md-6 col-sm-12 col-xs-12">
             <!-- This is where the receieved messages show up -->
-            <form class="my-1" action="/delmsg/12" method="POST">
+            {% for msg in rec_msgs %}
+            <form class="my-1" action="/delmsg/{{msg['message_id']}}">
                 <div class="alert alert-primary" role="alert">
-                    <p class="my-0"><b>Alex:</b></p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                    <p class="my-0"><b>{{msg['firstname']}}:</b></p>
+                    {{msg['content']}}
                     <button class="close" type="submit">
                         <img src="{{ url_for('static', filename='img/delmsg.png') }}" alt="close" width="30px">
                     </button>
                 </div>
             </form>
-            <form class="my-1" action="/delmsg/10" method="POST">
-                <div class="alert alert-primary" role="alert">
-                    <p class="my-0"><b>Jane:</b></p>
-                    Feugiat vivamus at augue eget arcu dictum varius duis at. Dignissim suspendisse in est ante. Auctor neque vitae tempus quam pellentesque nec nam aliquam. Nisl suscipit adipiscing bibendum est ultricies integer. Cursus mattis molestie a iaculis. Feugiat nisl pretium fusce id velit. Viverra orci sagittis eu volutpat odio facilisis mauris sit amet. Montes nascetur ridiculus mus mauris vitae. Velit sed ullamcorper morbi tincidunt ornare. Pharetra massa massa ultricies mi quis hendrerit dolor.
-                    <button class="close" type="submit">
-                        <img src="{{ url_for('static', filename='img/delmsg.png') }}" alt="close" width="30px">
-                    </button>
+            {% else %}
+            <div class="jumbotron jumbotron-fluid text-center">
+                <div class="container">
+                    <img src="{{ url_for('static', filename='img/nothing.png') }}", alt="no message", width="200px">
+                    <p class="lead">You have no messages in your feed.</p>
                 </div>
-            </form>
+            </div>
+            {% endfor %}
         </div>
         <div class="col col-lg-6 col-md-6 col-sm-12 col-xs-12">
             <!-- This is where you type messages to others -->
+            {% for other in other_users %}
             <form action="/sendmsg" method="POST" class="my-4">
                 <div class="form-group">
-                    <label>Alex</label><input type="hidden" width="0px" name="recipient_id" value="5">
+                    <label>{{other['firstname']}}</label><input type="hidden" width="0px" name="recipient_id" value="{{other['id']}}">
                     <div class="row">
                         <div class="col col-lg-11 col-md-11 col-sm-11 col-xs-11">
                             <textarea class="form-control" name="content" rows="3"></textarea>
@@ -84,19 +85,14 @@
                     </div>
                 </div>
             </form>
-            <form action="/sendmsg" method="POST" class="my-4">
-                <div class="form-group">
-                    <label>Jane</label><input type="hidden" width="0px" name="recipient_id" value="5">
-                    <div class="row">
-                        <div class="col col-lg-11 col-md-11 col-sm-11 col-xs-11">
-                            <textarea class="form-control" name="content" rows="3"></textarea>
-                        </div>
-                    <div class="col col-lg-1 col-md-1 col-sm-1 col-xs-1">
-                        <button class="btn btn-primary" type="submit">Send</button>
-                    </div>
-                    </div>
+            {% else %}
+            <div class="jumbotron jumbotron-fluid text-center">
+                <div class="container">
+                    <img src="{{ url_for('static', filename='img/alone.gif') }}", alt="alone", width="200px">
+                    <p class="lead">There are no other users now. Try in a few hours.</p>
                 </div>
-            </form>
+            </div>
+            {% endfor %}
         </div>
     </div>
 
