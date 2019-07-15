@@ -225,5 +225,16 @@ def deleteprofile():
     mysql.query_db("DELETE FROM users WHERE id = %(id)s", {'id': session['id']})
     return redirect("/logout")
 
+@app.route("/delmsg/<id>")
+def delmsg(id):
+    if 'id' not in session:
+        flash(not_logged_in, 'error')
+        return redirect("/")
+    mysql = connectToMySQL(dbname)
+    messages = mysql.query_db("SELECT * FROM messages WHERE id = %(id)s AND recipient_id = %(recipient_id)s", {'id': id, 'recipient_id': session['id']})
+    if bool(messages) == 0:
+        flash("You can't delete that message", "error")
+        return redirect("/success")
+
 if __name__ == "__main__":
     app.run(debug=True)
