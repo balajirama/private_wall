@@ -50,49 +50,51 @@
     <div class="row">
         <div class="col col-lg-6 col-md-6 col-sm-12 col-xs-12">
             <!-- This is where the receieved messages show up -->
-            {% for msg in rec_msgs %}
-            <form class="my-1" action="/delmsg/{{msg['message_id']}}">
-                <div class="alert alert-primary" role="alert">
-                    <p class="my-0"><b>{{msg['firstname']}}:</b></p>
-                    {{msg['content']}}
-                    <button class="close" type="submit">
-                        <img src="{{ url_for('static', filename='img/delmsg.png') }}" alt="close" width="30px">
-                    </button>
+            <div class="overflow-auto" style="height: 380px">
+                {% for msg in rec_msgs %}
+                <form class="my-1" action="/delmsg/{{msg['message_id']}}">
+                    <div class="alert alert-primary" role="alert">
+                        <p class="my-0"><b>{{msg['firstname']}}:</b></p>
+                        {{msg['content']}}
+                        <button class="close" type="submit">
+                            <img src="{{ url_for('static', filename='img/delmsg.png') }}" alt="close" width="30px">
+                        </button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="jumbotron jumbotron-fluid text-center">
+                    <div class="container">
+                        <img src="{{ url_for('static', filename='img/nothing.png') }}", alt="no message", width="160px">
+                        <p class="lead">You have no messages in your feed.</p>
+                    </div>
                 </div>
-            </form>
-            {% else %}
-            <div class="jumbotron jumbotron-fluid text-center">
-                <div class="container">
-                    <img src="{{ url_for('static', filename='img/nothing.png') }}", alt="no message", width="200px">
-                    <p class="lead">You have no messages in your feed.</p>
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
         <div class="col col-lg-6 col-md-6 col-sm-12 col-xs-12">
             <!-- This is where you type messages to others -->
-            {% for other in other_users %}
-            <form action="/sendmsg" method="POST" class="my-4">
-                <div class="form-group">
-                    <label>{{other['firstname']}}</label><input type="hidden" width="0px" name="recipient_id" value="{{other['id']}}">
-                    <div class="row">
-                        <div class="col col-lg-11 col-md-11 col-sm-11 col-xs-11">
-                            <textarea class="form-control" name="content" rows="3"></textarea>
+            <div class="overflow-auto" style="height: 380px">
+                {% for other in other_users %}
+                <form action="/sendmsg" method="POST" class="my-4">
+                    <div class="form-group">
+                        <label class="my-0">{{other['firstname']}}</label><input type="hidden" width="0px" name="recipient_id" value="{{other['id']}}">
+                        <div class="row">
+                            <div class="col col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <textarea class="form-control my-1" name="content" rows="3"></textarea>
+                            </div>
                         </div>
-                    <div class="col col-lg-1 col-md-1 col-sm-1 col-xs-1">
                         <button class="btn btn-primary" type="submit">Send</button>
                     </div>
+                </form>
+                {% else %}
+                <div class="jumbotron jumbotron-fluid text-center">
+                    <div class="container">
+                        <img src="{{ url_for('static', filename='img/alone.gif') }}", alt="alone", width="160px">
+                        <p class="lead">There are no other users now. Try in a few hours.</p>
                     </div>
                 </div>
-            </form>
-            {% else %}
-            <div class="jumbotron jumbotron-fluid text-center">
-                <div class="container">
-                    <img src="{{ url_for('static', filename='img/alone.gif') }}", alt="alone", width="200px">
-                    <p class="lead">There are no other users now. Try in a few hours.</p>
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
 

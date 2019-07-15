@@ -22,14 +22,14 @@
 
     <div class="card text-center">
         <div class="card-header">
-            Your profile
+            We know what you're doing
         </div>
         <div class="card-body">
+            <img src="{{url_for('static', filename='img/bigbrother.jpg')}}" width="700px">
+            <p class="h4">We know all about you</p>
             <h5 class="card-title">{{user['firstname']}} {{user['lastname']}}</h5>
             <p class="card-text">{{user['email']}}</p>
-            <p class="card-text">Birthday: {{user['dob'].strftime("%B %d")}}</p>
-            <p class="card-text">Age: {{user_age}}</p>
-            <p class="card-text">Favorite languages: {{ user['languages'] }}</p>
+            <p class="card-text">Your IP address: {{ip_address}}</p>
             <div class="row">
                 <div class="col col-lg-4">
                     <a href="/success" class="btn btn-primary btn-lg btn-block">Home</a>
@@ -53,7 +53,7 @@
             </div>
         </div>
         <div class="card-footer text-muted">
-            You registered with us on {{user['created_at'].strftime("%A, %B %d, %Y at %I:%M:%S %p")}}
+            You tried to hack into our website on {{session['mischief'].strftime("%A, %B %d, %Y at %I:%M:%S %p")}}
         </div>
     </div>
 

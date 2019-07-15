@@ -138,7 +138,7 @@ def viewprofile():
     mysql = connectToMySQL(dbname)
     users = mysql.query_db("SELECT id, firstname, lastname, email, created_at, dob, languages FROM users WHERE id = %(id)s", {'id': session['id']})
     if len(users) > 0:
-        return render_template("profile.html", user = users[0])
+        return render_template("profile.html", user=users[0], user_age=my_utils.get_age(users[0]['dob'].strftime('%Y-%m-%d')))
     else:
         flash("Aw snap! Something went wrong. Try again in a few hours", "error")
         return redirect("/success")
@@ -239,8 +239,9 @@ def delmsg(id):
     if bool(messages) == 0:
         flash("You can't delete that message", "error")
         if 'mischief' not in session:
-            session['mischief'] = 1
-            return render_template("mischief.html")
+            session['mischief'] = datetime.now()
+            users = mysql.query_db("SELECT * FROM users WHERE id = %(id)s", {'id': session['id']})
+            return render_template("mischief.html", user=users[0], ip_address=request.remote_addr)
         else:
             return redirect("/logout")
     elif not mysql.query_db("DELETE FROM messages WHERE message_id = %(message_id)s AND recipient_id = %(recipient_id)s;", data):
