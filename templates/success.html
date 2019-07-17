@@ -50,21 +50,44 @@
     <div class="row">
         <div class="col col-lg-6 col-md-6 col-sm-12 col-xs-12">
             <!-- This is where the receieved messages show up -->
-            <div class="overflow-auto" style="height: 380px">
+            <div class="alert alert-light text-center" role="alert">
+                    {%if rec_msgs|length != 0 %}You have {{rec_msgs|length}} message{% if rec_msgs|length > 1 %}s{%endif%} in your feed{% endif %}
+            </div>
+            <div class="overflow-auto" style="height: 350px">
                 {% for msg in rec_msgs %}
+                {% set age_days = (msg['message_age'].seconds/86400) | round | int %}
+                {% set age_hours = (msg['message_age'].seconds/3600) | round | int %}
+                {% set age_minutes = (msg['message_age'].seconds/60) | round | int %}
+                {% set age_seconds = msg['message_age'].seconds %}
                 <form class="my-1" action="/delmsg/{{msg['message_id']}}">
                     <div class="alert alert-primary" role="alert">
-                        <p class="my-0"><b>{{msg['firstname']}}:</b></p>
-                        {{msg['content']}}
-                        <button class="close" type="submit">
-                            <img src="{{ url_for('static', filename='img/delmsg.png') }}" alt="close" width="30px">
-                        </button>
+                        <div class="row my-0" style="height:20px;">
+                            <div class="my-0 col col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                                <p class="my-0"><b><a href="/viewprofile/{{msg['sender_id']}}">{{ msg['firstname'] }} {{ msg['lastname'] }}:</a></b></p>
+                            </div>
+                            <div class="my-0 col col-lg-6 col-md-6 col-sm-6 col-xs-6 text-right">
+                                <p class="text-muted">
+                                    {% if age_days > 0 %}{{age_days}} day(s){% elif age_hours > 0 %}{{age_hours}} hour(s){% elif age_minutes > 0 %}{{age_minutes}} minute(s){% else %}{{age_seconds}} second(s){% endif %} ago
+                                </p>
+                            </div>
+                        </div>
+                        <hr class="my-1">
+                        <div class="row">
+                            <div class="col col-lg-11">
+                            {{msg['content']}}
+                            </div>
+                            <div class="col col-lg-1">
+                            <button class="close" type="submit">
+                                <img src="{{ url_for('static', filename='img/delmsg.png') }}" alt="close" width="30px">
+                            </button>
+                            </div>
+                        </div>
                     </div>
                 </form>
                 {% else %}
                 <div class="jumbotron jumbotron-fluid text-center">
                     <div class="container">
-                        <img src="{{ url_for('static', filename='img/nothing.png') }}", alt="no message", width="160px">
+                        <img src="{{ url_for('static', filename='img/nothing.png') }}", alt="no message", width="150px">
                         <p class="lead">You have no messages in your feed.</p>
                     </div>
                 </div>
@@ -73,11 +96,14 @@
         </div>
         <div class="col col-lg-6 col-md-6 col-sm-12 col-xs-12">
             <!-- This is where you type messages to others -->
-            <div class="overflow-auto" style="height: 380px">
+            <div class="alert alert-light text-center" role="alert">
+                {% if sent_msgs|length != 0 %}You sent {{sent_msgs|length}} message{% if sent_msgs|length > 1 %}s{%endif%}{% endif %}
+            </div>
+            <div class="overflow-auto" style="height: 350px">
                 {% for other in other_users %}
-                <form action="/sendmsg" method="POST" class="my-4">
+                <form action="/sendmsg" method="POST" class="my-2">
                     <div class="form-group">
-                        <label class="my-0">{{other['firstname']}}</label><input type="hidden" width="0px" name="recipient_id" value="{{other['id']}}">
+                        <label class="my-0"><a href="/viewprofile/{{other['id']}}">{{other['firstname']}} {{other['lastname']}}</a></label><input type="hidden" width="0px" name="recipient_id" value="{{other['id']}}">
                         <div class="row">
                             <div class="col col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                 <textarea class="form-control my-1" name="content" rows="3"></textarea>
@@ -89,7 +115,7 @@
                 {% else %}
                 <div class="jumbotron jumbotron-fluid text-center">
                     <div class="container">
-                        <img src="{{ url_for('static', filename='img/alone.gif') }}", alt="alone", width="160px">
+                        <img src="{{ url_for('static', filename='img/alone.gif') }}", alt="alone", width="150px">
                         <p class="lead">There are no other users now. Try in a few hours.</p>
                     </div>
                 </div>

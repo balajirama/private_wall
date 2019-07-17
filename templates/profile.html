@@ -22,7 +22,11 @@
 
     <div class="card text-center">
         <div class="card-header">
+            {% if session['id'] == user['id'] %}
             Your profile
+            {% else %}
+            {{user['firstname']}}'s profile
+            {% endif %}
         </div>
         <div class="card-body">
             <h5 class="card-title">{{user['firstname']}} {{user['lastname']}}</h5>
@@ -35,6 +39,7 @@
                     <a href="/success" class="btn btn-primary btn-lg btn-block">Home</a>
                 </div>
                 <div class="col col-lg-4">
+                    {% if session['id'] == user['id'] %}
                     <div class="dropdown">
                         <button class="btn btn-secondary btn-lg btn-block dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Actions
@@ -46,6 +51,7 @@
                             <a class="dropdown-item" data-toggle="modal" data-target="#confirmdelete">Delete profile</a>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
                 <div class="col col-lg-4">
                     <a href="/logout" class="btn btn-danger btn-block btn-lg">Logout</a>
@@ -53,7 +59,11 @@
             </div>
         </div>
         <div class="card-footer text-muted">
+            {% if session['id'] == user['id'] %}
             You registered with us on {{user['created_at'].strftime("%A, %B %d, %Y at %I:%M:%S %p")}}
+            {% else %}
+            {{user['firstname']}} has been with us since {{user['created_at'].strftime("%A, %B %d, %Y")}}
+            {% endif %}
         </div>
     </div>
 

@@ -121,9 +121,10 @@ def success():
         flash(not_logged_in, "error")
         return redirect("/")
     mysql = connectToMySQL(dbname)
-    rec_msgs = mysql.query_db("SELECT users.firstname AS firstname, message_id, content, sent_at FROM messages JOIN users ON messages.sender_id = users.id WHERE messages.recipient_id = %(id)s ORDER BY sent_at DESC", {'id': session['id']})
-    other_users = mysql.query_db("SELECT * FROM users WHERE id != %(id)s", {'id': session['id']})
-    return render_template("success.html", rec_msgs=rec_msgs, other_users=other_users)
+    rec_msgs = mysql.query_db("SELECT users.firstname AS firstname, users.lastname AS lastname, sender_id, message_id, content, TIMEDIFF(NOW(), sent_at) AS message_age FROM messages JOIN users ON messages.sender_id = users.id WHERE messages.recipient_id = %(id)s AND messages.recipient_del = 0 ORDER BY sent_at DESC;", {'id': session['id']})
+    sent_msgs = mysql.query_db("SELECT * FROM messages WHERE sender_id = %(id)s AND sender_del = 0;", {'id': session['id']})
+    other_users = mysql.query_db("SELECT * FROM users WHERE id != %(id)s;", {'id': session['id']})
+    return render_template("success.html", rec_msgs=rec_msgs, other_users=other_users, sent_msgs=sent_msgs)
 
 @app.route("/logout")
 def logout():
@@ -142,6 +143,20 @@ def viewprofile():
     else:
         flash("Aw snap! Something went wrong. Try again in a few hours", "error")
         return redirect("/success")
+
+@app.route("/viewprofile/<user_id>")
+def viewprofile_user_id(user_id):
+    if 'id' not in session:
+        flash(not_logged_in, "error")
+        return redirect("/")
+    mysql = connectToMySQL(dbname)
+    users = mysql.query_db("SELECT id, firstname, lastname, email, created_at, dob, languages FROM users WHERE id = %(id)s", {'id': user_id})
+    if len(users) > 0:
+        return render_template("profile.html", user=users[0], user_age=my_utils.get_age(users[0]['dob'].strftime('%Y-%m-%d')))
+    else:
+        flash("Aw snap! Something went wrong. Try again in a few hours", "error")
+        return redirect("/success")
+
 
 @app.route("/editprofile")
 def editprofile():
@@ -206,7 +221,7 @@ def updatepassword():
         is_valid = False
         flash('Current password does not match', 'currentpassword')
         return redirect("/changepasswd")
-    if not validate_password(request.form, categories=['newpassword', 'confirm']):
+    if not my_utils.validate_password(request.form, categories=['newpassword', 'confirm']):
         is_valid = False
     if not is_valid:
         return redirect("/changepasswd")
@@ -237,16 +252,24 @@ def delmsg(id):
     data = {'message_id': id, 'recipient_id': session['id']}
     messages = mysql.query_db("SELECT * FROM messages WHERE message_id = %(message_id)s AND recipient_id = %(recipient_id)s;", data)
     if bool(messages) == 0:
-        flash("You can't delete that message", "error")
         if 'mischief' not in session:
             session['mischief'] = datetime.now()
-            users = mysql.query_db("SELECT * FROM users WHERE id = %(id)s", {'id': session['id']})
-            return render_template("mischief.html", user=users[0], ip_address=request.remote_addr)
+            flash("You can't delete that message", "error")
+            return redirect("/hacker_alert")
         else:
             return redirect("/logout")
-    elif not mysql.query_db("DELETE FROM messages WHERE message_id = %(message_id)s AND recipient_id = %(recipient_id)s;", data):
-        flash("Something went wrong in deleting the message", "error")
+    elif not mysql.query_db("UPDATE messages SET recipient_del = 1 WHERE message_id = %(message_id)s AND recipient_id = %(recipient_id)s;", data):
+        flash("Something went wrong in deleting the message. Server error.", "error")
     return redirect("/success")
+
+@app.route("/hacker_alert")
+def hacker_alert():
+    if 'id' not in session:
+        flash(not_logged_in, 'error')
+        return redirect("/")
+    mysql = connectToMySQL(dbname)
+    users = mysql.query_db("SELECT * FROM users WHERE id = %(id)s", {'id': session['id']})
+    return render_template("mischief.html", user=users[0], ip_address=request.remote_addr)
 
 @app.route("/sendmsg", methods=['POST'])
 def sendmsg():
@@ -258,7 +281,7 @@ def sendmsg():
     for key in request.form.keys():
         data[key] = request.form[key]
     data['sender_id'] = session['id']
-    if not mysql.query_db("INSERT INTO messages (content, recipient_id, sender_id, sent_at) VALUES ( %(content)s, %(recipient_id)s, %(sender_id)s, NOW() );", data):
+    if not mysql.query_db("INSERT INTO messages (content, recipient_id, sender_id, sent_at, recipient_del, sender_del) VALUES ( %(content)s, %(recipient_id)s, %(sender_id)s, NOW(), 0, 0 );", data):
         flash("Aw snap! Something is wrong at our end. Try in a few hours. Message was not sent", "error")
     else:
         users = mysql.query_db("SELECT firstname FROM users WHERE id = %(recipient_id)s", request.form)
