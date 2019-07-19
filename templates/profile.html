@@ -3,22 +3,12 @@
 {% block title %}
 {% endblock %}
 
+{% import "macros.html" as macros %}
+
 {% block content %}
 <div class="container">
-    {% with errors = get_flashed_messages(category_filter=['error']) %}
-    {% for message in errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ message }}
-    </div>
-    {% endfor %}
-    {% endwith %}
-    {% with successes = get_flashed_messages(category_filter=['success']) %}
-    {% for message in successes %}
-    <div class="alert alert-success" role="alert">
-        {{ message }}
-    </div>
-    {% endfor %}
-    {% endwith %}
+    {{ macros.showflashes() }}
+    {{ macros.showflashes(category=['success'], alert_type='alert-success') }}
 
     <div class="card text-center">
         <div class="card-header">

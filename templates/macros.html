@@ -1,0 +1,26 @@
+
+
+{% macro showflashes(alert_type='alert-danger', category=['error']) -%}
+    {% with errors = get_flashed_messages(category_filter=category) %}
+    {% for message in errors %}
+    <div class="alert {{alert_type}}" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endwith %}
+{%- endmacro %}
+
+
+{% macro inputfield(name, label, value='', type='text', placeholder='', small_text=None) -%}
+    {% set input_id = 'input_' + name %}
+    <div class="form-group">
+        <label>{{label}}</label>
+        {{ showflashes(category=[name]) }}
+        <input type="{{type}}" class="form-control" id="{{input_id}}" name="{{name}}" placeholder="{{placeholder}}" value="{{value}}">
+        {% if small_text != None %}<small class='form-text text-muted'>{{small_text}}</small>{% endif %}
+    </div>
+{%- endmacro %}
+

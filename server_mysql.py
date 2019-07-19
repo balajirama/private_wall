@@ -73,15 +73,6 @@ def validate_nonpassword(fields):
         is_valid = False
     return is_valid
 
-def gen_lang_str():
-    langstr = ""
-    for language in LANGUAGES:
-        if language['name'] in request.form:
-            if len(langstr) > 0:
-                langstr += " "
-            langstr += language['name']
-    return langstr
-
 def validate_all_fields(fields):
     return (validate_nonpassword(fields) and my_utils.validate_password(fields))
 

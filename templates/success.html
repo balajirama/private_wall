@@ -1,6 +1,7 @@
 {% extends "master.html" %}
 
 {% block title %}
+{{session['firstname']}}'s private wall
 {% endblock %}
 
 {% block content %}
@@ -55,7 +56,10 @@
             </div>
             <div class="overflow-auto" style="height: 350px">
                 {% for msg in rec_msgs %}
-                {% set age_days = (msg['message_age'].seconds/86400) | round | int %}
+                {% set age_years = (msg['message_age'].days / 365) | round | int %}
+                {% set age_months = (msg['message_age'].days / 30) | round | int %}
+                {% set age_weeks = (msg['message_age'].days / 7) | round | int %}
+                {% set age_days = msg['message_age'].days %}
                 {% set age_hours = (msg['message_age'].seconds/3600) | round | int %}
                 {% set age_minutes = (msg['message_age'].seconds/60) | round | int %}
                 {% set age_seconds = msg['message_age'].seconds %}
