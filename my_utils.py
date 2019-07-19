@@ -22,7 +22,7 @@ def is_age_over(num, dob):
     return (today - nth_bday).days >= 0
 
 def copy_immutable_dict(immutable_dict, **kwargs):
-    my result_dict = dict()
+    result_dict = dict()
     for item in immutable_dict.keys():
         result_dict[item] = immutable_dict[item]
     for param, value in kwargs.items():
